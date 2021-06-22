@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Visualize stock data for user provided stock ticker">
+    <meta name="author" content="@gotoariel">
+
+    <title>StockApp</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container"></div>
+      <div class="page-header">
+        <h1>
+          Stock Price Lookup <br>
+          <small class="text-muted">by Alex Armstrong</small>
+        </h1>
+      </div>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          <ul class="flashes">
+          {% for m in messages %}
+              <li>{{m}}</li>
+          {% endfor %}
+          </ul>
+      {% else %}
+      {% endif %}
+      {% endwith %}
+      <form action="{{url_for('get_ticker')}}" method='post'>
+        <div class="form-row">
+          <div class="form-group col-sm-2">
+            <label for="ticker">Stock Ticker:</label>
+            <input type="text" class="form-control" name="ticker" required placeholder='AAPL'>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-sm-2">
+            <label class="form-check-label" for="month">Month:</label>
+            <select class="form-control" name="month">
+                {% for m in ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] %}
+                  {% if loop.index == current_month %}
+                    <option value="{{loop.index}}" selected="selected">{{m}}</option>
+                  {% else %}
+                    <option value="{{loop.index}}">{{m}}</option>
+                  {% endif %}
+                {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group col-sm-2">
+            <label for="year">Year:</label>
+            <input type="number" class="form-control" name="year" required value="{{current_year}}" min="1999", max="{{current_year}}">
+          </div>
+        </div>
+
+        <div class="form-row col-sm-4">
+          <p> Plot Type:</p>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="plot_type" id = 'plot_type1' value="adj_close" checked>
+            <label class="form-check-label" for="plot_type1">Adjusted Close Price</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="plot_type" id = 'plot_type2' value="candlestick">
+            <label class="form-check-label" for="plot_type1">Candlestick</label>
+          </div>
+        </div>
+        <div class="form-row col-sm-2">
+          <input type="submit" class="btn btn-primary">
+        </div>
+      </form>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
+</html>

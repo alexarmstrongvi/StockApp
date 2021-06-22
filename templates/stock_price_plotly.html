@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lan="en-US">
+<head>
+    <title>Stock Price</title>
+    <meta name="author" content="Alex Armstrong">
+</head>   
+<body>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <div class="page-header">
+      <h1>Stock Price Data</h1>
+    </div>
+    <div class='container'>
+        <p><a href="{{ url_for('index') }}">New Search</a></p>
+    </div>
+    <p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes">
+        {% for m in messages %}
+            <li>{{m}}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    {% endif %}
+    {% endwith %}
+    </p>
+    <div id='plot'></div>
+    <script>
+        data = {{ graphJSON | safe }}
+        Plotly.newPlot('plot', data, config={responsive: true})
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>
