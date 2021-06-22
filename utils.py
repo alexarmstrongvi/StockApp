@@ -1,26 +1,15 @@
-#import matplotlib; matplotlib.use("Agg") #
-#import matplotlib.pyplot as plt
-# -- OR --
-from matplotlib.figure import Figure
-import io
-import pandas as pd
-
-import requests
 import json
-
 import re
-
-from datetime import datetime, timedelta
+from datetime import datetime
 import calendar
-from dateutil import parser
-
-from dotenv import load_dotenv; load_dotenv()
 import os
 
-import plotly.express as px
+from dotenv import load_dotenv; load_dotenv()
+import requests
+from dateutil import parser
+import pandas as pd
 import plotly.graph_objects as go
 from plotly.utils import PlotlyJSONEncoder
-
 from flask import flash
 
 def get_stock_price_plotly_json(ticker, plot_type, month=None, year=None):

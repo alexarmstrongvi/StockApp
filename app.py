@@ -1,26 +1,26 @@
-from flask import Flask, render_template, request, redirect
-from flask.helpers import flash, make_response, send_file, url_for
-from flask.wrappers import Response
-
-import base64
 from datetime import date
+
+from dotenv import load_dotenv; load_dotenv()
+from flask import Flask, flash, url_for, render_template, request, redirect
 
 import utils
 
-app = Flask(__name__)
+################################################################################
+# Configure Flask Application
+################################################################################
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('default_settings')
+app.config.from_pyfile('config.py', silent=True)
 
-app.config.from_mapping(SECRET_KEY='dev')
-
+################################################################################
+# Views
+################################################################################
 @app.route('/')
 def index():
-  m = date.today().month
-  y = date.today().year
-  return render_template('index.html', current_month=m, current_year=y)
-
-@app.route('/about')
-def about():
-  return render_template('about.html')
-import sys
+  return render_template('index.html', 
+    current_month = date.today().month, 
+    current_year  = date.today().year
+  )
 
 @app.route('/get_ticker', methods=['GET', 'POST'])
 def get_ticker():
@@ -34,14 +34,16 @@ def get_ticker():
     except ValueError: # year field left empty
       flash("Please provide a year")
       return redirect(url_for('index'))
-    
 
     # Generate plot
-    print(f"Form Inputs : {ticker=}; {month=}; {year=}", file=sys.stderr)
     graphJSON = utils.get_stock_price_plotly_json(ticker, plot_type, month, year)
-    return str(render_template('stock_price_plotly.html', graphJSON=graphJSON))
-  else:
-    return redirect(url_for('index'))
+    
+    # Return webpage
+    return render_template('stock_price_plotly.html', graphJSON=graphJSON)
 
+  # Only accessible through home page form submission
+  return redirect(url_for('index'))
+
+################################################################################
 if __name__ == '__main__':
   app.run(port=33507)
