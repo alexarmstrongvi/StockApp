@@ -94,7 +94,7 @@ def get_stock_ts_raw(ticker):
     return data
 
 def parse_stock_ts_raw(data):
-    meta = data['Meta Data']
+    meta = data.get('Meta Data', {})
     ts_key = [k for k in data if 'Time Series' in k][0]
     ts_df = pd.DataFrame(data[ts_key]).T
 
