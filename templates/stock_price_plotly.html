@@ -3,28 +3,38 @@
 <head>
     <title>Stock Price</title>
     <meta name="author" content="Alex Armstrong">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>   
 <body>
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-    <div class="page-header">
-      <h1>Stock Price Data</h1>
-    </div>
     <div class='container'>
-        <p><a href="{{ url_for('index') }}">New Search</a></p>
+        <div class="page-header">
+            <h1>Stock Price Data</h1>
+        </div>
+        
+        <p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for m in messages %}
+                <li>{{m}}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+        {% endif %}
+        {% endwith %}
+        </p>
+        
+        <div class="row">
+            <div id='plot'></div>
+        </div>
+        <div class="row">
+            <form action="{{ url_for('index') }}">
+                <input type="submit" class="btn btn-primary" value="New Search">
+            </form>
+        </div>
+    
     </div>
-    <p>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="flashes">
-        {% for m in messages %}
-            <li>{{m}}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-    {% endif %}
-    {% endwith %}
-    </p>
-    <div id='plot'></div>
     <script>
         data = {{ graphJSON | safe }}
         Plotly.newPlot('plot', data, config={responsive: true})
