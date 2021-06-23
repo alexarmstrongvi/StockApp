@@ -2,24 +2,25 @@ import json
 import re
 from datetime import datetime
 import calendar
-import os
+import sys
 
-from dotenv import load_dotenv; load_dotenv()
 import requests
 from dateutil import parser
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.utils import PlotlyJSONEncoder
-from flask import flash
+from flask import flash, current_app
 
 def get_stock_price_plotly_json(ticker, plot_type, month=None, year=None):
     fig = make_stock_price_plot(ticker, plot_type, month, year)
+    if fig is None:
+        return
     return json.dumps(fig, cls=PlotlyJSONEncoder)
 
 def make_stock_price_plot(ticker, plot_type, month=None, year=None):
     df = get_stock_time_series(ticker, month, year)
-    if df.empty:
-        return go.Figure()
+    if df is None:
+        return
     
     # Plotly
     if plot_type == 'adj_close':
@@ -47,44 +48,47 @@ def make_stock_price_plot(ticker, plot_type, month=None, year=None):
 def get_stock_time_series(ticker, month=None, year=None):
     if datetime.today() < datetime(year=year, month=month, day=1):
         flash("Sorry but this service is currently unable to predict the future")
-        return pd.DataFrame()
+        return
 
     data_raw = get_stock_ts_raw(ticker)
+    if not data_raw:
+        flash(f'Stock price data not found for {ticker}')
+        return
+
     _, df = parse_stock_ts_raw(data_raw) 
     df_trim  = filter_stock_ts_df(df, month, year)
 
-    if df.empty:
-        flash(f'Stock price data not found for {ticker}')
-    elif df_trim.empty:
+    if df_trim.empty:
         min_dt, max_dt = df.index.min(), df.index.max()
         mn = calendar.month_name    
         flash(f'Stock price data not available for {ticker} in {mn[month]} {year}.')
         flash(f'Data for {ticker} exists from {mn[min_dt.month]} {min_dt.year} to {mn[max_dt.month]} {max_dt.year}')
+        return
 
     return df_trim
 
 def get_stock_ts_raw(ticker):
     # TODO: add as args
     function   = 'TIME_SERIES_DAILY_ADJUSTED'
-    outputsize = 'full' #'compact' # while testing
+    outputsize = 'full'
     
     url = f'''
     https://www.alphavantage.co/query?
       function   = {function}
     & symbol     = {ticker}
     & outputsize = {outputsize}
-    & apikey     = {os.environ["ALPHA_VANTAGE_API_KEY"]}
+    & apikey     = {current_app.config["ALPHA_VANTAGE_API_KEY"]}
     '''.replace(' ','').replace('\n','')
     
     r = requests.get(url)
     try:
         data = r.json()
     except json.JSONDecodeError:
-        print("ERROR :: Failed to decode API data. Response status code =", r.status_code)
-        return
+        print("ERROR :: Failed to decode API data. Response status code =", r.status_code, file=sys.stderr)
+        return 
     
     if 'Error Message' in data:
-        print(data['Error Message'])
+        print(data['Error Message'], file=sys.stderr)
         return
     
     return data

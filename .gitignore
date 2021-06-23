@@ -1,0 +1,13 @@
+# Project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
+MANIFEST
+
+instance/
+
+# Other
+.env
+set_heroku_config.sh

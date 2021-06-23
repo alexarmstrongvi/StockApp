@@ -1,6 +1,5 @@
 from datetime import date
 
-from dotenv import load_dotenv; load_dotenv()
 from flask import Flask, flash, url_for, render_template, request, redirect
 
 import utils
@@ -26,7 +25,7 @@ def index():
 def get_ticker():
   if request.method == 'POST':
     # Parse request form
-    ticker    = request.form['ticker']
+    ticker    = request.form['ticker'].upper()
     plot_type = request.form['plot_type']
     month     = int(request.form['month'])
     try:
@@ -37,6 +36,8 @@ def get_ticker():
 
     # Generate plot
     graphJSON = utils.get_stock_price_plotly_json(ticker, plot_type, month, year)
+    if not graphJSON:
+      return redirect(url_for('index'))
     
     # Return webpage
     return render_template('stock_price_plotly.html', graphJSON=graphJSON)
