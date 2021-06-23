@@ -10,6 +10,19 @@
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+    <script>
+      // Prevent crash when submit button pressed many times repeatedly
+      var wasSubmitted = false;
+      function disableSubmit() {
+        if (!wasSubmitted) {
+          wasSubmitted = true;
+          return wasSubmitted;
+        }
+        return false
+      }
+    </script>
+
   </head>
   <body>
     <div class="container"></div>
@@ -29,7 +42,7 @@
       {% else %}
       {% endif %}
       {% endwith %}
-      <form action="{{url_for('get_ticker')}}" method='post'>
+      <form action="{{url_for('get_ticker')}}" onsubmit='return disableSubmit()' method='post'>
         <div class="form-row">
           <div class="form-group col-sm-2">
             <label for="ticker">Stock Ticker:</label>
@@ -67,9 +80,11 @@
             <label class="form-check-label" for="plot_type1">Candlestick</label>
           </div>
         </div>
+
         <div class="form-row col-sm-2">
-          <input type="submit" class="btn btn-primary">
+          <input type="submit" class="btn btn-primary" onclick>
         </div>
+
       </form>
     </div>
 

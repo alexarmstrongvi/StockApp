@@ -55,7 +55,11 @@ def get_stock_time_series(ticker, month=None, year=None):
         flash(f'Stock price data not found for {ticker}')
         return
 
-    _, df = parse_stock_ts_raw(data_raw) 
+    _, df = parse_stock_ts_raw(data_raw)
+    if df is None:
+        flash(f'Stock price data not found for {ticker}')
+        return
+
     df_trim  = filter_stock_ts_df(df, month, year)
 
     if df_trim.empty:
@@ -94,8 +98,11 @@ def get_stock_ts_raw(ticker):
     return data
 
 def parse_stock_ts_raw(data):
-    meta = data.get('Meta Data', {})
-    ts_key = [k for k in data if 'Time Series' in k][0]
+    ts_keys = [k for k in data if 'Time Series' in k]
+    if 'Meta Data' not in data or len(ts_keys) == 0:
+        return None, None
+    meta = data['Meta Data']
+    ts_key = ts_keys[0]
     ts_df = pd.DataFrame(data[ts_key]).T
 
     # Clean up keys
